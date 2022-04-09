@@ -1,6 +1,9 @@
 package com.example.guessmaster;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.net.Uri;
+import android.view.View;
 import android.widget.*;
 import android.os.Bundle;
 
@@ -99,9 +102,64 @@ public class GuessMaster extends AppCompatActivity {
             return randomNumber.nextInt(numOfEntities);
         }
 
+        public void changeEntity(){
+            userIn.setText("");
+            entityid = genRandomEntityId();
+        }
+
+        // TODO Change to 'equals' method
+        public void ImageSetter(){
+            String imageName;
+            switch(entities[entityid].getName()) {
+                case "United States":
+                    imageName = "usaflag.gif";
+                    break;
+                case "Celine Dion":
+                    imageName = "celidion.jpg";
+                    break;
+                case "Justin Trudeau":
+                    imageName = "justint.jpg";
+                    break;
+                default:
+                    imageName = "creator.jpg";
+            }
+            entityImage.setImageURI(Uri.parse(imageName));  //TODO Fix image string
+        }
+        
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guess_activity);
+
+        //Button for date submission
+        guessButton = (Button) findViewById(R.id.btnGuess);
+        //Button for input date erase
+        btnclearContent = (Button) findViewById(R.id.btnClear);
+        //EditText for user input
+        userIn = (EditText) findViewById(R.id.guessInput);
+        //TextView for total tickets
+        ticketsum = (TextView) findViewById(R.id.ticket);
+        //TextView for entity name
+        entityName = (TextView) findViewById(R.id.entityName);
+        //ImageView for entity image
+        entityImage = (ImageView) findViewById(R.id.entityImage);
+
+        // OnClick Listener action for clear button
+        btnclearContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeEntity();
+            }
+        });
+
+        // OnClick Listener action for submit button
+        guessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Playing game
+                playGame();
+            }
+        });
     }
 }
