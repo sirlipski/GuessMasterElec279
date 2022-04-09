@@ -1,7 +1,9 @@
 package com.example.guessmaster;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.view.View;
 import android.widget.*;
@@ -125,7 +127,26 @@ public class GuessMaster extends AppCompatActivity {
             }
             entityImage.setImageURI(Uri.parse(imageName));  //TODO Fix image string
         }
-        
+
+        // Welcome alert
+        public void welcomeToGame(Entity entity){
+            AlertDialog.Builder welcomeAlert = new AlertDialog.Builder(GuessMaster.this);
+            welcomeAlert.setTitle("GuessMaster Game V3");
+            welcomeAlert.setMessage(entity.welcomeMessage());
+            welcomeAlert.setCancelable(false);
+
+            welcomeAlert.setNegativeButton("START_GAME", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int which) {
+                    Toast.makeText(getBaseContext(), "Game is Starting... \nEnjoy", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            // Show Dialog
+
+            AlertDialog dialog = welcomeAlert.create();
+            dialog.show();
+        }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
