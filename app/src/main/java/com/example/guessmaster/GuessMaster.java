@@ -29,8 +29,6 @@ public class GuessMaster extends AppCompatActivity {
 
     private int numOfEntities;
     private Entity[] entities;
-    private int[] tickets;
-    private int numOfTickets;
     //Stores Entity Name
     String entName;
     int entityid = 0;
@@ -53,19 +51,21 @@ public class GuessMaster extends AppCompatActivity {
     }
 
     public void playGame(int entityId) {
-        Entity entity = entities[entityId];
-        playGame(entity);
+        playGame(entities[entityId]);
+    }
+
+    public void playGame() {
+        playGame(entities[entityid]);
     }
 
     public void playGame(Entity entity) {
-        try {
+        //try {
+
             // Name of the entity to be guessed in the entityName textview
             entityName.setText(entity.getName());
 
             // Get input from the EditText
             answer = userIn.getText().toString();
-
-
             answer = answer.replace("\n", "").replace("\r", "");
 
             if (answer.equals("quit")) {
@@ -73,7 +73,6 @@ public class GuessMaster extends AppCompatActivity {
             }
 
             Date date = new Date(answer);
-//			System.out.println("you guess is: " + date);
 
             if (date.precedes(entity.getBorn())) {
                 //System.out.println("Incorrect. Try a later date.");
@@ -110,52 +109,37 @@ public class GuessMaster extends AppCompatActivity {
                 dialog.show();
             } else {
 
-                tickets[numOfTickets++] = entity.getAwardedTicketNumber();
-                for (int i = 0; i < 100; i++)
-                    currentTicketWon = currentTicketWon + tickets[i];
+                currentTicketWon += entity.getAwardedTicketNumber();
 
-                AlertDialog.Builder ticketsAlert = new AlertDialog.Builder(GuessMaster.this);
-                ticketsAlert.setTitle("Total Tickets:");
-                ticketsAlert.setMessage(currentTicketWon);
-                ticketsAlert.setCancelable(false);
+                // Update total ticket number
+                ticketsum.setText("Tickets: " + currentTicketWon);
 
-                ticketsAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+
+                AlertDialog.Builder winAlert = new AlertDialog.Builder(GuessMaster.this);
+                winAlert.setTitle("You Won");
+                winAlert.setMessage("BINGO! " + entity.closingMessage());
+                winAlert.setCancelable(false);
+
+                winAlert.setNegativeButton("Continue", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
+                        Toast.makeText(getBaseContext(), entity.getAwardedTicketNumber() + " more tickets!", Toast.LENGTH_SHORT).show();
                         ContinueGame();
                     }
                 });
 
                 // Show Dialog
-                AlertDialog dialog = ticketsAlert.create();
+                AlertDialog dialog = winAlert.create();
                 dialog.show();
+
             }
 
-            AlertDialog.Builder winAlert = new AlertDialog.Builder(GuessMaster.this);
-            winAlert.setTitle("You Won");
-            winAlert.setMessage("BINGO! " + entity.closingMessage());
-            winAlert.setCancelable(false);
-
-            winAlert.setNegativeButton("Continue", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
-                    Toast.makeText(getBaseContext(), entity.getAwardedTicketNumber() + " more tickets!", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            // Show Dialog
-            AlertDialog dialog = winAlert.create();
-            dialog.show();
-
-            // Update total ticket number
-            ticketsum.setText(currentTicketWon);
-
-
+        /**
         } catch (Exception e) {
             AlertDialog.Builder error = new AlertDialog.Builder(GuessMaster.this);
 
             error.setTitle("ERROR");
-            error.setMessage("Please input answer in the format: \"MM-DD-YYYY\"");
+            error.setMessage("Please input answer in the format: \"MM/DD/YYYY\"");
             error.setCancelable(false);
             error.setNegativeButton("OK", new DialogInterface.OnClickListener() {
                 @Override
@@ -167,11 +151,8 @@ public class GuessMaster extends AppCompatActivity {
 
             AlertDialog dialog = error.create();
             dialog.show();
-        }
+        }*/
     }
-
-
-
 
         // Continue Game Method     //TODO Add more comments
         public void ContinueGame(){
@@ -192,23 +173,20 @@ public class GuessMaster extends AppCompatActivity {
 
         }
 
-        public void playGame() {
-                int entityId = genRandomEntityId();
-                playGame(entityId);
-        }
-
         public int genRandomEntityId() {
             Random randomNumber = new Random();
             return randomNumber.nextInt(numOfEntities);
         }
 
-        public void changeEntity(){
+        public Entity changeEntity(){
             userIn.getText().clear();
             entityid = genRandomEntityId();
             Entity entity = entities[entityid];
             entName = entity.getName();
             entityName.setText(entity.getName());
             ImageSetter();
+            ticketsum.setText("Tickets: " + currentTicketWon);
+            return entity;
         }
 
         // TODO Change to 'equals' method
@@ -277,7 +255,7 @@ public class GuessMaster extends AppCompatActivity {
             }
         });
 
-        // OnClick Listener action for submit button
+        // OnClick Listener action for guess button
         guessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
