@@ -4,7 +4,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.view.View;
 import android.widget.*;
 import android.os.Bundle;
@@ -23,6 +22,11 @@ public class GuessMaster extends AppCompatActivity {
 
     String answer;
 
+    Country usa = new Country("United States", new Date("July", 4, 1776), "Washingston DC", 0.1);
+    Person myCreator = new Person("myCreator", new Date("May", 6, 1800), "Male", 1);
+    Politician trudeau = new Politician("Justin Trudeau", new Date("December", 25, 1971), "Male", "Liberal", 0.25);
+    Singer dion = new Singer("Celine Dion", new Date("March", 30, 1961), "Female", "La voix du bon Dien", new Date("November", 6, 1981), 0.5);
+
     private int numOfEntities;
     private Entity[] entities;
     private int[] tickets;
@@ -32,112 +36,100 @@ public class GuessMaster extends AppCompatActivity {
     int entityid = 0;
     int currentTicketWon = 0;
 
-    Country usa= new Country("United States", new Date("July", 4, 1776), "Washingston DC", 0.1);
-    Person myCreator= new Person("myCreator", new Date("May", 6, 1800), "Male",1);
-    Politician trudeau = new Politician("Justin Trudeau", new Date("December",25,1971),"Male", "Liberal", 0.25);
-    Singer dion= new Singer("Celine Dion", new Date("March", 30, 1961), "Female","La voix du bon Dien", new Date("November",6,1981),0.5);
-    final GuessMaster gm = new GuessMaster();
 
-
-        public GuessMaster() {
-            numOfEntities = 0;
-            entities = new Entity[10];
+    public void addEntity(Entity entity) {  // TODO Replace this function to mine
+        //Increases for obvious reasons.
+        this.numOfEntities++;
+        //A new array is created with an additional index.
+        Entity[] array = new Entity[this.numOfEntities];
+        //All values are copied into the new array.
+        for (int i = 0; i < array.length - 1; i++) {
+            array[i] = this.entities[i];
         }
+        //
+        this.entities = array;
+        //New entity is inserted at the end of the entities array.
+        this.entities[numOfEntities - 1] = entity;
+    }
 
-        public void addEntity(Entity entity) {
-//		entities[numOfEntities++] = new Entity(entity);
-//		entities[numOfEntities++] = entity;//////
-            entities[numOfEntities++] = entity.clone();
-        }
+    public void playGame(int entityId) {
+        Entity entity = entities[entityId];
+        playGame(entity);
+    }
 
-        public void playGame(int entityId) {
-            Entity entity = entities[entityId];
-            playGame(entity);
-        }
-
-        public void playGame(Entity entity) {
-
+    public void playGame(Entity entity) {
+        try {
             // Name of the entity to be guessed in the entityName textview
             entityName.setText(entity.getName());
 
             // Get input from the EditText
             answer = userIn.getText().toString();
 
-            /**
-            System.out.println("***************************");////
-            System.out.printf(entity.welcomeMessage());////
-            if(entity.getName() != "Myself")
-                System.out.printf("\n\nGuess %s's birthday\n", entity.getName());
-            else
-                System.out.printf("\n\nGuess my birthday\n", entity.getName());
-            System.out.println("(mm/dd/yyyy)");
-             */
 
+            answer = answer.replace("\n", "").replace("\r", "");
 
-                answer = answer.replace("\n", "").replace("\r", "");
+            if (answer.equals("quit")) {
+                System.exit(0);
+            }
 
-                if (answer.equals("quit")) {
-                    System.exit(0);
-                }
-
-                Date date = new Date(answer);
+            Date date = new Date(answer);
 //			System.out.println("you guess is: " + date);
 
-                if (date.precedes(entity.getBorn())) {
-                    //System.out.println("Incorrect. Try a later date.");
-                    AlertDialog.Builder earlyAlert = new AlertDialog.Builder(GuessMaster.this);
-                    earlyAlert.setTitle("Incorrect");
-                    earlyAlert.setMessage("Try a later date.");
-                    earlyAlert.setCancelable(false);
+            if (date.precedes(entity.getBorn())) {
+                //System.out.println("Incorrect. Try a later date.");
+                AlertDialog.Builder earlyAlert = new AlertDialog.Builder(GuessMaster.this);
+                earlyAlert.setTitle("Incorrect");
+                earlyAlert.setMessage("Try a later date.");
+                earlyAlert.setCancelable(false);
 
-                    earlyAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
-                            //Toast.makeText(getBaseContext(), "Game is Starting... \nEnjoy", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                earlyAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
+                        //Toast.makeText(getBaseContext(), "Game is Starting... \nEnjoy", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-                    // Show Dialog
-                    AlertDialog dialog = earlyAlert.create();
-                    dialog.show();
-                } else if (entity.getBorn().precedes(date)) {
-                    AlertDialog.Builder lateAlert = new AlertDialog.Builder(GuessMaster.this);
-                    lateAlert.setTitle("Incorrect");
-                    lateAlert.setMessage("Try an earlier date.");
-                    lateAlert.setCancelable(false);
+                // Show Dialog
+                AlertDialog dialog = earlyAlert.create();
+                dialog.show();
+            } else if (entity.getBorn().precedes(date)) {
+                AlertDialog.Builder lateAlert = new AlertDialog.Builder(GuessMaster.this);
+                lateAlert.setTitle("Incorrect");
+                lateAlert.setMessage("Try an earlier date.");
+                lateAlert.setCancelable(false);
 
-                    lateAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
-                            //Toast.makeText(getBaseContext(), "Game is Starting... \nEnjoy", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                lateAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
+                        //Toast.makeText(getBaseContext(), "Game is Starting... \nEnjoy", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-                    // Show Dialog
-                    AlertDialog dialog = lateAlert.create();
-                    dialog.show();
-                } else {
+                // Show Dialog
+                AlertDialog dialog = lateAlert.create();
+                dialog.show();
+            } else {
 
-                    tickets[numOfTickets++] = entity.getAwardedTicketNumber();
-                    for(int i = 0; i < 100; i++)
-                        currentTicketWon = currentTicketWon + tickets[i];
+                tickets[numOfTickets++] = entity.getAwardedTicketNumber();
+                for (int i = 0; i < 100; i++)
+                    currentTicketWon = currentTicketWon + tickets[i];
 
-                    AlertDialog.Builder ticketsAlert = new AlertDialog.Builder(GuessMaster.this);
-                    ticketsAlert.setTitle("Total Tickets:");
-                    ticketsAlert.setMessage(currentTicketWon);
-                    ticketsAlert.setCancelable(false);
+                AlertDialog.Builder ticketsAlert = new AlertDialog.Builder(GuessMaster.this);
+                ticketsAlert.setTitle("Total Tickets:");
+                ticketsAlert.setMessage(currentTicketWon);
+                ticketsAlert.setCancelable(false);
 
-                    ticketsAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
-                            ContinueGame();
-                        }
-                    });
+                ticketsAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
+                        ContinueGame();
+                    }
+                });
 
-                    // Show Dialog
-                    AlertDialog dialog = ticketsAlert.create();
-                    dialog.show();
-                }
+                // Show Dialog
+                AlertDialog dialog = ticketsAlert.create();
+                dialog.show();
+            }
 
             AlertDialog.Builder winAlert = new AlertDialog.Builder(GuessMaster.this);
             winAlert.setTitle("You Won");
@@ -159,23 +151,26 @@ public class GuessMaster extends AppCompatActivity {
             ticketsum.setText(currentTicketWon);
 
 
+        } catch (Exception e) {
+            AlertDialog.Builder error = new AlertDialog.Builder(GuessMaster.this);
 
-                    /**
-                    Random random = new Random();
-                    int rd = random.nextInt(50);
-                    rd += 50;
-//				for(int i=0; i<=50*100; i++)
-//					System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-                    System.out.println("*************Bingo!***************");
-//				System.out.printf("***Your bonus is %d$****\n", rd*100);
-                    System.out.printf("You won %d tickets in this round.\n", entity.getAwardedTicketNumber());
-                    currentTicketWon += entity.getAwardedTicketNumber();
-                    System.out.printf("The total number of your tickets is %d.\n", currentTicketWon);
-                    System.out.printf("**********************************\n", rd * 100);
-                    System.out.printf(entity.closingMessage());////
+            error.setTitle("ERROR");
+            error.setMessage("Please input answer in the format: \"MM-DD-YYYY\"");
+            error.setCancelable(false);
+            error.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
                 }
-                     */
+
+            });
+
+            AlertDialog dialog = error.create();
+            dialog.show();
         }
+    }
+
+
 
 
         // Continue Game Method     //TODO Add more comments
@@ -208,27 +203,25 @@ public class GuessMaster extends AppCompatActivity {
         }
 
         public void changeEntity(){
-            userIn.setText("");
+            userIn.getText().clear();
             entityid = genRandomEntityId();
+            Entity entity = entities[entityid];
+            entName = entity.getName();
+            entityName.setText(entity.getName());
+            ImageSetter();
         }
 
         // TODO Change to 'equals' method
         public void ImageSetter(){
-            String imageName;
-            switch(entName) {
-                case "United States":
-                    imageName = "usaflag.gif";
-                    break;
-                case "Celine Dion":
-                    imageName = "celidion.jpg";
-                    break;
-                case "Justin Trudeau":
-                    imageName = "justint.jpg";
-                    break;
-                default:
-                    imageName = "creator.jpg";
-            }
-            entityImage.setImageURI(Uri.parse(imageName));  //TODO Fix image string
+            if(entName.equals("United States"))
+                    entityImage.setImageResource(R.drawable.usaflag);
+            else if(entName.equals("Celine Dion"))
+                    entityImage.setImageResource(R.drawable.celidion);
+            else if(entName.equals("Justin Trudeau"))
+                    entityImage.setImageResource(R.drawable.justint);
+            else
+                    entityImage.setImageResource(R.drawable.creator);
+
         }
 
         // Welcome alert
@@ -268,6 +261,13 @@ public class GuessMaster extends AppCompatActivity {
         entityName = (TextView) findViewById(R.id.entityName);
         //ImageView for entity image
         entityImage = (ImageView) findViewById(R.id.entityImage);
+
+        this.addEntity(usa);
+        this.addEntity(dion);
+        this.addEntity(trudeau);
+        this.addEntity(myCreator);
+
+        changeEntity();
 
         // OnClick Listener action for clear button
         btnclearContent.setOnClickListener(new View.OnClickListener() {
