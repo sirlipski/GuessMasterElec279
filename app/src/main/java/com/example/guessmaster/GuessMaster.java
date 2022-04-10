@@ -12,6 +12,7 @@ import java.util.Random;
 
 public class GuessMaster extends AppCompatActivity {
 
+    // Variables used to control UI components
     private TextView entityName;
     private TextView ticketsum;
     private Button guessButton;
@@ -20,13 +21,16 @@ public class GuessMaster extends AppCompatActivity {
     private String user_input;
     private ImageView entityImage;
 
+    // Used to store user answer
     String answer;
 
+    // Game entities
     Country usa = new Country("United States", new Date("July", 4, 1776), "Washingston DC", 0.1);
     Person myCreator = new Person("myCreator", new Date("May", 6, 1800), "Male", 1);
     Politician trudeau = new Politician("Justin Trudeau", new Date("December", 25, 1971), "Male", "Liberal", 0.25);
     Singer dion = new Singer("Celine Dion", new Date("March", 30, 1961), "Female", "La voix du bon Dien", new Date("November", 6, 1981), 0.5);
 
+    // Variables used for game mechanics
     private int numOfEntities;
     private Entity[] entities;
     //Stores Entity Name
@@ -34,32 +38,26 @@ public class GuessMaster extends AppCompatActivity {
     int entityid = 0;
     int currentTicketWon = 0;
 
-
-    public void addEntity(Entity entity) {  // TODO Replace this function to mine
-        //Increases for obvious reasons.
+    // Adds a new entity to to GuessMaster entities array
+    public void addEntity(Entity entity) {
         this.numOfEntities++;
-        //A new array is created with an additional index.
-        Entity[] array = new Entity[this.numOfEntities];
-        //All values are copied into the new array.
-        for (int i = 0; i < array.length - 1; i++) {
-            array[i] = this.entities[i];
-        }
-        //
-        this.entities = array;
-        //New entity is inserted at the end of the entities array.
+        Entity[] biggerList = new Entity[numOfEntities];// Initializes a new entities array
+        for(int i = 0; i < biggerList.length - 1; i++)// Copies all the entities to a new array
+            biggerList[i] = this.entities[i];
+        this.entities = biggerList;// Sets GuessMaster.entities array to a new array
         this.entities[numOfEntities - 1] = entity;
     }
-
+    // Starts the game with given entityId
     public void playGame(int entityId) {
         playGame(entities[entityId]);
     }
-
+    // Starts the game with earlier chosen entityId
     public void playGame() {
         playGame(entities[entityid]);
     }
-
+    // Play Game functions
     public void playGame(Entity entity) {
-        //try {
+        try {   // Used for catching invalid user answer
 
             // Name of the entity to be guessed in the entityName textview
             entityName.setText(entity.getName());
@@ -68,14 +66,18 @@ public class GuessMaster extends AppCompatActivity {
             answer = userIn.getText().toString();
             answer = answer.replace("\n", "").replace("\r", "");
 
+            // To leave the app
             if (answer.equals("quit")) {
                 System.exit(0);
             }
 
+            // Creates a Date object from answer
             Date date = new Date(answer);
 
+            // If answer Date is earlier than Entity's birthday
             if (date.precedes(entity.getBorn())) {
-                //System.out.println("Incorrect. Try a later date.");
+
+                // Creates a hint as Alert
                 AlertDialog.Builder earlyAlert = new AlertDialog.Builder(GuessMaster.this);
                 earlyAlert.setTitle("Incorrect");
                 earlyAlert.setMessage("Try a later date.");
@@ -83,15 +85,17 @@ public class GuessMaster extends AppCompatActivity {
 
                 earlyAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
-                        //Toast.makeText(getBaseContext(), "Game is Starting... \nEnjoy", Toast.LENGTH_SHORT).show();
-                    }
+                    public void onClick(DialogInterface dialogInterface, int which) { }
                 });
 
                 // Show Dialog
                 AlertDialog dialog = earlyAlert.create();
                 dialog.show();
+
+                // If answer Date is later than Entity's birthday
             } else if (entity.getBorn().precedes(date)) {
+
+                // Creates a hint as Alert
                 AlertDialog.Builder lateAlert = new AlertDialog.Builder(GuessMaster.this);
                 lateAlert.setTitle("Incorrect");
                 lateAlert.setMessage("Try an earlier date.");
@@ -99,22 +103,23 @@ public class GuessMaster extends AppCompatActivity {
 
                 lateAlert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
-                        //Toast.makeText(getBaseContext(), "Game is Starting... \nEnjoy", Toast.LENGTH_SHORT).show();
-                    }
+                    public void onClick(DialogInterface dialogInterface, int which) { }
                 });
 
                 // Show Dialog
                 AlertDialog dialog = lateAlert.create();
                 dialog.show();
+
+                // If correct answer
             } else {
 
+                // Accumulates total points
                 currentTicketWon += entity.getAwardedTicketNumber();
 
                 // Update total ticket number
                 ticketsum.setText("Tickets: " + currentTicketWon);
 
-
+                // Creates a winning message as Alert
                 AlertDialog.Builder winAlert = new AlertDialog.Builder(GuessMaster.this);
                 winAlert.setTitle("You Won");
                 winAlert.setMessage("BINGO! " + entity.closingMessage());
@@ -122,8 +127,10 @@ public class GuessMaster extends AppCompatActivity {
 
                 winAlert.setNegativeButton("Continue", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {   //  TODO Not sure what to do with this one
+                    public void onClick(DialogInterface dialogInterface, int which) {
                         Toast.makeText(getBaseContext(), entity.getAwardedTicketNumber() + " more tickets!", Toast.LENGTH_SHORT).show();
+
+                        // Continues the game
                         ContinueGame();
                     }
                 });
@@ -134,27 +141,28 @@ public class GuessMaster extends AppCompatActivity {
 
             }
 
-        /**
-        } catch (Exception e) {
-            AlertDialog.Builder error = new AlertDialog.Builder(GuessMaster.this);
+            // Cathes possible exception (used for invalid user guess input)
+        }catch(Exception e){
 
-            error.setTitle("ERROR");
-            error.setMessage("Please input answer in the format: \"MM/DD/YYYY\"");
-            error.setCancelable(false);
-            error.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+                // Creates an alert for error message
+                AlertDialog.Builder error = new AlertDialog.Builder(GuessMaster.this);
+                error.setTitle("ERROR");
+                error.setMessage("Please input answer in the format: \"MM/DD/YYYY\"");
+                error.setCancelable(false);
+                error.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                }
+                    }
 
-            });
+                });
+                // Shows dialog
+                AlertDialog dialog = error.create();
+                dialog.show();
+            }
+        }
 
-            AlertDialog dialog = error.create();
-            dialog.show();
-        }*/
-    }
-
-        // Continue Game Method     //TODO Add more comments
+        // Continue Game Method
         public void ContinueGame(){
             entityid = genRandomEntityId();
             Entity entity = entities[entityid];
@@ -173,11 +181,13 @@ public class GuessMaster extends AppCompatActivity {
 
         }
 
+        // Generates random number from entity list
         public int genRandomEntityId() {
             Random randomNumber = new Random();
             return randomNumber.nextInt(numOfEntities);
         }
 
+        // Sets UI component to a desired entity
         public Entity changeEntity(){
             userIn.getText().clear();
             entityid = genRandomEntityId();
@@ -185,11 +195,12 @@ public class GuessMaster extends AppCompatActivity {
             entName = entity.getName();
             entityName.setText(entity.getName());
             ImageSetter();
-            ticketsum.setText("Tickets: " + currentTicketWon);
+            ticketsum.setText("Total Tickets: " + currentTicketWon);
+
             return entity;
         }
 
-        // TODO Change to 'equals' method
+        // Sets image to a desired entity's one based on their name
         public void ImageSetter(){
             if(entName.equals("United States"))
                     entityImage.setImageResource(R.drawable.usaflag);
@@ -198,7 +209,7 @@ public class GuessMaster extends AppCompatActivity {
             else if(entName.equals("Justin Trudeau"))
                     entityImage.setImageResource(R.drawable.justint);
             else
-                    entityImage.setImageResource(R.drawable.creator);
+                    entityImage.setImageResource(R.drawable.sillyfrosh);
 
         }
 
@@ -245,7 +256,8 @@ public class GuessMaster extends AppCompatActivity {
         this.addEntity(trudeau);
         this.addEntity(myCreator);
 
-        changeEntity();
+        Entity firstEntity = changeEntity();
+        welcomeToGame(firstEntity);
 
         // OnClick Listener action for clear button
         btnclearContent.setOnClickListener(new View.OnClickListener() {
